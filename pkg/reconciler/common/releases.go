@@ -142,6 +142,12 @@ func IsVersionValidMigrationEligible(instance base.KComponent) error {
 		return fmt.Errorf("minor number of the target version %v should be an integer.", target)
 	}
 
+	// If the version is in the direct upgrade list, return true.
+	if canUpgradeDirectly(semver.MajorMinor(current), semver.MajorMinor(target)) {
+		fmt.Printf("Direct upgrade %s/%s from %s to %s\n", instance.GetNamespace(), instance.GetName(), current, target)
+		return nil
+	}
+
 	if currentMajor != targetMajor {
 		// All the official releases of Knative are under the same Major version number. If target and current versions
 		// are different in terms of major version, upgrade or downgrade is not supported.
