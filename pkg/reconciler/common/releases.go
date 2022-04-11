@@ -19,6 +19,7 @@ package common
 import (
 	"fmt"
 	"io/ioutil"
+	"log"
 	"os"
 	"path"
 	"path/filepath"
@@ -151,6 +152,12 @@ func IsVersionValidMigrationEligible(instance v1alpha1.KComponent) error {
 	targetMinor, err := strconv.Atoi(strings.Split(target, ".")[1])
 	if err != nil {
 		return fmt.Errorf("minor number of the target version %v should be an integer.", target)
+	}
+
+	// If the version is in the direct upgrade list, return nil.
+	if isDirectUpgradeVersion(semver.MajorMinor(current), semver.MajorMinor(target)) {
+		log.Printf("Direct upgrade %s/%s from %s to %s\n", instance.GetNamespace(), instance.GetName(), current, target)
+		return nil
 	}
 
 	if currentMajor != targetMajor {
