@@ -9,7 +9,7 @@ require (
 	github.com/google/go-cmp v0.5.6
 	github.com/google/go-github/v33 v33.0.0
 	github.com/manifestival/client-go-client v0.5.0
-	github.com/manifestival/manifestival v0.7.1
+	github.com/manifestival/manifestival v0.7.2
 	go.uber.org/zap v1.19.1
 	gocloud.dev v0.22.0
 	golang.org/x/mod v0.5.1
