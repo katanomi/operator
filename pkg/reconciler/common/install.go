@@ -53,6 +53,9 @@ func Install(ctx context.Context, manifest *mf.Manifest, instance base.KComponen
 		status.MarkInstallFailed(err.Error())
 		return fmt.Errorf("failed to apply (cluster)rolebindings: %w", err)
 	}
+	logger.Infow("Applied rbac manifest------------------------------------------------")
+	debugMani := manifest.Filter(mf.Not(mf.Any(role, rolebinding, webhook)))
+	logger.Infow("debug manifest", "file", debugMani.ResourceNames())
 	if err := manifest.Filter(mf.Not(mf.Any(role, rolebinding, webhook))).Apply(); err != nil {
 		logger.Errorw("Failed to apply non rbac manifest", "error", err)
 		status.MarkInstallFailed(err.Error())

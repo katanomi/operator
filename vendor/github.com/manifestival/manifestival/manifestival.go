@@ -1,6 +1,7 @@
 package manifestival
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/go-logr/logr"
@@ -9,6 +10,7 @@ import (
 	v1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
+	"knative.dev/pkg/logging"
 )
 
 // Manifestival defines the operations allowed on a set of Kubernetes
@@ -106,6 +108,7 @@ func (m Manifest) ResourceNames() []string {
 // Apply updates or creates all resources in the manifest.
 func (m Manifest) Apply(opts ...ApplyOption) error {
 	for _, spec := range m.resources {
+		logging.FromContext(context.TODO()).Infow("Install.Manifest.Applying", "name", spec.GetName(), "type", spec.GroupVersionKind(), "spec", spec)
 		if err := m.apply(&spec, opts...); err != nil {
 			return err
 		}
