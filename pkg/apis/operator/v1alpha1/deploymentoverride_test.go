@@ -29,8 +29,8 @@ import (
 
 var four int32 = 4
 
-func makeExpectedDeploymentOverrideNonEmpty() []base.DeploymentOverride {
-	return []base.DeploymentOverride{
+func makeExpectedDeploymentOverrideNonEmpty() []base.WorkloadOverride {
+	return []base.WorkloadOverride{
 		{
 			Name:         "webhook",
 			Labels:       map[string]string{"e": "f"},
@@ -71,8 +71,8 @@ func makeExpectedDeploymentOverrideNonEmpty() []base.DeploymentOverride {
 	}
 }
 
-func makeExpectedExistentTestDeploymentOverride() []base.DeploymentOverride {
-	return []base.DeploymentOverride{
+func makeExpectedExistentTestDeploymentOverride() []base.WorkloadOverride {
+	return []base.WorkloadOverride{
 		{
 			Name:         "webhook",
 			Labels:       map[string]string{"e": "f"},
@@ -111,8 +111,8 @@ func makeExpectedExistentTestDeploymentOverride() []base.DeploymentOverride {
 	}
 }
 
-func makeExpectedDeploymentOverrideArrayOrigin() []base.DeploymentOverride {
-	return []base.DeploymentOverride{
+func makeExpectedDeploymentOverrideArrayOrigin() []base.WorkloadOverride {
+	return []base.WorkloadOverride{
 		{
 			Name:         "webhook",
 			Labels:       map[string]string{"e": "f"},
@@ -151,8 +151,8 @@ func makeExpectedDeploymentOverrideArrayOrigin() []base.DeploymentOverride {
 	}
 }
 
-func makeExpectedDeploymentOverrideEmpty() []base.DeploymentOverride {
-	return []base.DeploymentOverride{
+func makeExpectedDeploymentOverrideEmpty() []base.WorkloadOverride {
+	return []base.WorkloadOverride{
 		{
 			Name: "webhook-not-exist",
 			Resources: []base.ResourceRequirementsOverride{{
@@ -176,7 +176,7 @@ func TestConvertToDeploymentOverride(t *testing.T) {
 	for _, tt := range []struct {
 		name     string
 		source   base.KComponent
-		expected []base.DeploymentOverride
+		expected []base.WorkloadOverride
 	}{{
 		name: "Knative Serving: merge the non-existent ResourceRequirementsOverride into the non-empty DeploymentOverrides",
 		source: &KnativeServing{
@@ -191,7 +191,7 @@ func TestConvertToDeploymentOverride(t *testing.T) {
 								corev1.ResourceMemory: resource.MustParse("999Mi")},
 						},
 					}},
-					DeploymentOverride: []base.DeploymentOverride{
+					DeploymentOverride: []base.WorkloadOverride{
 						{
 							Name:         "webhook",
 							Labels:       map[string]string{"e": "f"},
@@ -237,7 +237,7 @@ func TestConvertToDeploymentOverride(t *testing.T) {
 								corev1.ResourceMemory: resource.MustParse("999Mi")},
 						},
 					}},
-					DeploymentOverride: []base.DeploymentOverride{
+					DeploymentOverride: []base.WorkloadOverride{
 						{
 							Name:         "webhook",
 							Labels:       map[string]string{"e": "f"},
@@ -283,7 +283,7 @@ func TestConvertToDeploymentOverride(t *testing.T) {
 								corev1.ResourceMemory: resource.MustParse("999Mi")},
 						},
 					}},
-					DeploymentOverride: []base.DeploymentOverride{
+					DeploymentOverride: []base.WorkloadOverride{
 						{
 							Name:         "webhook",
 							Labels:       map[string]string{"e": "f"},
@@ -338,7 +338,7 @@ func TestConvertToDeploymentOverride(t *testing.T) {
 								corev1.ResourceMemory: resource.MustParse("999Mi")},
 						},
 					}},
-					DeploymentOverride: []base.DeploymentOverride{
+					DeploymentOverride: []base.WorkloadOverride{
 						{
 							Name:         "webhook",
 							Labels:       map[string]string{"e": "f"},
@@ -387,7 +387,7 @@ func TestConvertToDeploymentOverride(t *testing.T) {
 								corev1.ResourceMemory: resource.MustParse("999Mi")},
 						},
 					}},
-					DeploymentOverride: []base.DeploymentOverride{
+					DeploymentOverride: []base.WorkloadOverride{
 						{
 							Name:         "webhook",
 							Labels:       map[string]string{"e": "f"},
@@ -451,7 +451,7 @@ func TestConvertToDeploymentOverride(t *testing.T) {
 								corev1.ResourceMemory: resource.MustParse("999Mi")},
 						},
 					}},
-					DeploymentOverride: []base.DeploymentOverride{
+					DeploymentOverride: []base.WorkloadOverride{
 						{
 							Name:         "webhook",
 							Labels:       map[string]string{"e": "f"},
