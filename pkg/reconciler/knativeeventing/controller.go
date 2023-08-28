@@ -22,6 +22,7 @@ import (
 	"go.uber.org/zap"
 	"k8s.io/client-go/tools/cache"
 
+	apixclient "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset"
 	"knative.dev/operator/pkg/apis/operator/v1beta1"
 	operatorclient "knative.dev/operator/pkg/client/injection/client"
 	knativeEventinginformer "knative.dev/operator/pkg/client/injection/informers/operator/v1beta1/knativeeventing"
@@ -32,6 +33,7 @@ import (
 	"knative.dev/pkg/configmap"
 	"knative.dev/pkg/controller"
 	"knative.dev/pkg/injection"
+	"knative.dev/pkg/injection/clients/dynamicclient"
 	"knative.dev/pkg/logging"
 )
 
@@ -72,7 +74,10 @@ func NewExtendedController(generator common.ExtensionGenerator) injection.Contro
 			FilterFunc: controller.FilterControllerGVK(v1beta1.SchemeGroupVersion.WithKind("KnativeEventing")),
 			Handler:    controller.HandleAll(impl.EnqueueControllerOf),
 		})
-
+		err = common.MigrateCustomResource(ctx, dynamicclient.Get(ctx), apixclient.NewForConfigOrDie(injection.GetConfig(ctx)))
+		if err != nil {
+			logger.Fatalw("Unable to migrate existing custom resources", zap.Error(err))
+		}
 		return impl
 	}
 }
