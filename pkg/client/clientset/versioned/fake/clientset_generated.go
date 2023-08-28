@@ -25,6 +25,8 @@ import (
 	fakediscovery "k8s.io/client-go/discovery/fake"
 	"k8s.io/client-go/testing"
 	clientset "knative.dev/operator/pkg/client/clientset/versioned"
+	operatorv1alpha1 "knative.dev/operator/pkg/client/clientset/versioned/typed/operator/v1alpha1"
+	fakeoperatorv1alpha1 "knative.dev/operator/pkg/client/clientset/versioned/typed/operator/v1alpha1/fake"
 	operatorv1beta1 "knative.dev/operator/pkg/client/clientset/versioned/typed/operator/v1beta1"
 	fakeoperatorv1beta1 "knative.dev/operator/pkg/client/clientset/versioned/typed/operator/v1beta1/fake"
 )
@@ -78,6 +80,11 @@ var (
 	_ clientset.Interface = &Clientset{}
 	_ testing.FakeClient  = &Clientset{}
 )
+
+// OperatorV1alpha1 retrieves the OperatorV1alpha1Client
+func (c *Clientset) OperatorV1alpha1() operatorv1alpha1.OperatorV1alpha1Interface {
+	return &fakeoperatorv1alpha1.FakeOperatorV1alpha1{Fake: &c.Fake}
+}
 
 // OperatorV1beta1 retrieves the OperatorV1beta1Client
 func (c *Clientset) OperatorV1beta1() operatorv1beta1.OperatorV1beta1Interface {
