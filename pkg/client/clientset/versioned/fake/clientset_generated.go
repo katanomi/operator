@@ -26,8 +26,8 @@ import (
 	"k8s.io/client-go/testing"
 	clientset "knative.dev/operator/pkg/client/clientset/versioned"
 	operatorv1alpha1 "knative.dev/operator/pkg/client/clientset/versioned/typed/operator/v1alpha1"
-	fakeoperatorv1alpha1 "knative.dev/operator/pkg/client/clientset/versioned/typed/operator/v1alpha1/fake"
 	operatorv1beta1 "knative.dev/operator/pkg/client/clientset/versioned/typed/operator/v1beta1"
+	fakeoperatorv1alpha1 "knative.dev/operator/pkg/client/clientset/versioned/typed/operator/v1alpha1/fake"
 	fakeoperatorv1beta1 "knative.dev/operator/pkg/client/clientset/versioned/typed/operator/v1beta1/fake"
 )
 

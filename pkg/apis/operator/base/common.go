@@ -71,6 +71,9 @@ type KComponentSpec interface {
 	// GetWorkloadOverrides gets the component configurations to override.
 	GetWorkloadOverrides() []WorkloadOverride
 
+	// GetDeploymentOverride gets the deployment configurations to override.
+	GetDeploymentOverride() []WorkloadOverride
+
 	// GetServiceOverride gets the service configurations to override.
 	GetServiceOverride() []ServiceOverride
 
@@ -209,6 +212,11 @@ func (c *CommonSpec) GetHighAvailability() *HighAvailability {
 // GetDeploymentOverride implements KComponentSpec.
 func (c *CommonSpec) GetWorkloadOverrides() []WorkloadOverride {
 	return append(c.DeploymentOverride, c.Workloads...)
+}
+
+// GetDeploymentOverride implements KComponentSpec.
+func (c *CommonSpec) GetDeploymentOverride() []WorkloadOverride {
+	return c.DeploymentOverride
 }
 
 // GetServiceOverride implements KComponentSpec.

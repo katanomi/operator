@@ -40,7 +40,7 @@ type Interface interface {
 type Clientset struct {
 	*discovery.DiscoveryClient
 	operatorV1alpha1 *operatorv1alpha1.OperatorV1alpha1Client
-	operatorV1beta1  *operatorv1beta1.OperatorV1beta1Client
+	operatorV1beta1 *operatorv1beta1.OperatorV1beta1Client
 }
 
 // OperatorV1alpha1 retrieves the OperatorV1alpha1Client
