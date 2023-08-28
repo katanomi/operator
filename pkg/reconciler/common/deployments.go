@@ -25,36 +25,45 @@ import (
 	"k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/client-go/kubernetes/scheme"
 	"knative.dev/operator/pkg/apis/operator/base"
+	"knative.dev/pkg/logging"
 )
 
 // CheckDeployments checks all deployments in the given manifest and updates the given
 // status with the status of the deployments.
 func CheckDeployments(ctx context.Context, manifest *mf.Manifest, instance base.KComponent) error {
 	status := instance.GetStatus()
+	logger := logging.FromContext(ctx).Named("CheckDeployments")
 	var nonReadyDeployments []string
 	for _, u := range manifest.Filter(mf.ByKind("Deployment")).Resources() {
+		logger.Infow("Checking deployment", "name", u.GetName())
 		resource, err := manifest.Client.Get(&u)
 		if err != nil {
+			logger.Errorw("Failed to get resource", "name", u.GetName(), "error", err)
 			status.MarkDeploymentsNotReady([]string{"all"})
 			if errors.IsNotFound(err) {
+				logger.Errorw("Deployment not found", "name", u.GetName(), "error", err)
 				return nil
 			}
 			return err
 		}
 		deployment := &appsv1.Deployment{}
 		if err := scheme.Scheme.Convert(resource, deployment, nil); err != nil {
+			logger.Errorw("Failed to convert resource to deployment", "name", u.GetName(), "error", err)
 			return err
 		}
 		if !isDeploymentAvailable(deployment) {
+			logger.Warnw("Deployment not ready", "name", u.GetName(), "status", deployment.Status)
 			nonReadyDeployments = append(nonReadyDeployments, deployment.Name)
 		}
+		logger.Infow("Deployment status", "name", u.GetName(), "status", deployment.Status)
 	}
 
 	if len(nonReadyDeployments) > 0 {
+		logger.Infow("Deployments not ready", "names", nonReadyDeployments)
 		status.MarkDeploymentsNotReady(nonReadyDeployments)
 		return nil
 	}
-
+	logger.Infow("All deployments ready")
 	status.MarkDeploymentsAvailable()
 	return nil
 }

@@ -94,6 +94,15 @@ func (m Manifest) Resources() []unstructured.Unstructured {
 	return result
 }
 
+// Resources returns a deep copy of the Manifest resources
+func (m Manifest) ResourceNames() []string {
+	result := make([]string, len(m.resources))
+	for i, v := range m.resources {
+		result[i] = v.GetName()
+	}
+	return result
+}
+
 // Apply updates or creates all resources in the manifest.
 func (m Manifest) Apply(opts ...ApplyOption) error {
 	for _, spec := range m.resources {

@@ -27,24 +27,30 @@ import (
 	"knative.dev/operator/pkg/reconciler/knativeeventing/source"
 	ksc "knative.dev/operator/pkg/reconciler/knativeserving/common"
 	"knative.dev/operator/pkg/reconciler/knativeserving/ingress"
+	"knative.dev/pkg/logging"
 )
 
 func Install(ctx context.Context, manifest *mf.Manifest, instance base.KComponent) error {
+	logger := logging.FromContext(ctx).Named("Install")
 	err := common.Install(ctx, manifest, instance)
 	if err != nil {
+		logger.Errorw("Failed to install", "error", err)
 		return err
 	}
 	status := instance.GetStatus()
 	path := common.TargetManifestPathArray(instance)
 	version := common.TargetVersion(instance)
 	addedPath := ingress.GetIngressPath(version, ksc.ConvertToKS(instance))
+	logger.Infow("Added path", "path", addedPath, "version", version, "status", status)
 	switch instance.(type) {
 	case *v1beta1.KnativeEventing:
+		logger.Infow("Adding source path", "version", version, "status", status)
 		addedPath = source.GetSourcePath(version, source.ConvertToKE(instance))
 	}
 	if addedPath != "" {
 		path = append(path, addedPath)
 	}
+	logger.Infow("Setting manifests", "path", path)
 	status.SetManifests(path)
 	return nil
 }

@@ -37,21 +37,24 @@ var (
 // Install applies the manifest resources for the given version and updates the given
 // status accordingly.
 func Install(ctx context.Context, manifest *mf.Manifest, instance base.KComponent) error {
-	logger := logging.FromContext(ctx)
-	logger.Debug("Installing manifest")
+	logger := logging.FromContext(ctx).Named("common.Install")
+	logger.Debug("Installing manifest", "manifest", manifest.ResourceNames())
 	status := instance.GetStatus()
 	// The Operator needs a higher level of permissions if it 'bind's non-existent roles.
 	// To avoid this, we strictly order the manifest application as (Cluster)Roles, then
 	// (Cluster)RoleBindings, then the rest of the manifest.
 	if err := manifest.Filter(role).Apply(); err != nil {
+		logger.Errorw("Failed to apply roles", "error", err)
 		status.MarkInstallFailed(err.Error())
 		return fmt.Errorf("failed to apply (cluster)roles: %w", err)
 	}
 	if err := manifest.Filter(rolebinding).Apply(); err != nil {
+		logger.Errorw("Failed to apply rolebindings", "error", err)
 		status.MarkInstallFailed(err.Error())
 		return fmt.Errorf("failed to apply (cluster)rolebindings: %w", err)
 	}
 	if err := manifest.Filter(mf.Not(mf.Any(role, rolebinding, webhook))).Apply(); err != nil {
+		logger.Errorw("Failed to apply non rbac manifest", "error", err)
 		status.MarkInstallFailed(err.Error())
 		if ks, ok := instance.(*v1beta1.KnativeServing); ok && strings.Contains(err.Error(), gatewayNotMatch) &&
 			(ks.Spec.Ingress == nil || ks.Spec.Ingress.Istio.Enabled) {
@@ -62,11 +65,15 @@ func Install(ctx context.Context, manifest *mf.Manifest, instance base.KComponen
 
 		return fmt.Errorf("failed to apply non rbac manifest: %w", err)
 	}
+	logger.Infow("Applied non rbac manifest")
 	if err := manifest.Filter(webhook).Apply(); err != nil {
+		logger.Errorw("Failed to apply webhooks", "error", err)
 		status.MarkInstallFailed(err.Error())
 		return fmt.Errorf("failed to apply webhooks: %w", err)
 	}
+	logger.Infow("Applied webhooks")
 	status.MarkInstallSucceeded()
+	logger.Infow("Install succeeded")
 	status.SetVersion(TargetVersion(instance))
 	return nil
 }
