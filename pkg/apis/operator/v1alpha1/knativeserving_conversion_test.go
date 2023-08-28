@@ -67,7 +67,7 @@ func TestKnativeServingConvertTo(t *testing.T) {
 			Spec: v1beta1.KnativeServingSpec{
 				CommonSpec: base.CommonSpec{
 					Version: "1.2",
-					DeploymentOverride: []base.DeploymentOverride{
+					DeploymentOverride: []base.WorkloadOverride{
 						{
 							Name: "webhook",
 							Resources: []base.ResourceRequirementsOverride{{
@@ -125,7 +125,7 @@ func TestKnativeServingConvertTo(t *testing.T) {
 			Spec: v1beta1.KnativeServingSpec{
 				CommonSpec: base.CommonSpec{
 					Version: "1.2",
-					DeploymentOverride: []base.DeploymentOverride{
+					DeploymentOverride: []base.WorkloadOverride{
 						{
 							Name: "webhook",
 							Resources: []base.ResourceRequirementsOverride{{
