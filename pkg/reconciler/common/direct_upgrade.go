@@ -28,7 +28,7 @@ const (
 	// DefaultDirectUpgradeVersions is the default direct upgrade versions
 	// Use `-` to separate the versions that can be upgraded directly
 	// Use `|` to separate between pairs of versions
-	DefaultDirectUpgradeVersions = "v0.24-v1.2"
+	DefaultDirectUpgradeVersions = "v0.24-v1.2|v1.2-v1.10"
 )
 
 var (
