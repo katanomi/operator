@@ -1,7 +1,6 @@
 package manifestival
 
 import (
-	"context"
 	"fmt"
 
 	"github.com/go-logr/logr"
@@ -10,7 +9,6 @@ import (
 	v1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
-	"knative.dev/pkg/logging"
 )
 
 // Manifestival defines the operations allowed on a set of Kubernetes
@@ -96,19 +94,9 @@ func (m Manifest) Resources() []unstructured.Unstructured {
 	return result
 }
 
-// Resources returns a deep copy of the Manifest resources
-func (m Manifest) ResourceNames() []string {
-	result := make([]string, len(m.resources))
-	for i, v := range m.resources {
-		result[i] = v.GetName()
-	}
-	return result
-}
-
 // Apply updates or creates all resources in the manifest.
 func (m Manifest) Apply(opts ...ApplyOption) error {
 	for _, spec := range m.resources {
-		logging.FromContext(context.TODO()).Infow("Install.Manifest.Applying", "name", spec.GetName(), "type", spec.GroupVersionKind(), "spec", spec)
 		if err := m.apply(&spec, opts...); err != nil {
 			return err
 		}
@@ -184,14 +172,15 @@ func (m Manifest) update(live, spec *unstructured.Unstructured, opts ...ApplyOpt
 // delete removes the specified object
 func (m Manifest) delete(spec *unstructured.Unstructured, opts ...DeleteOption) error {
 	current, err := m.get(spec)
-	if current == nil && err == nil {
+    if err != nil {
+        return err
+    }
+	if current == nil {
 		return nil
 	}
-
 	if !okToDelete(current) {
 		return nil
 	}
-
 	m.logResource("Deleting", spec)
 	return m.Client.Delete(spec, opts...)
 }
