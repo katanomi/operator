@@ -132,8 +132,6 @@ func (r *Reconciler) ReconcileKind(ctx context.Context, ke *v1beta1.KnativeEvent
 // and platform transformations applied
 func (r *Reconciler) transform(ctx context.Context, manifest *mf.Manifest, comp base.KComponent) error {
 	logger := logging.FromContext(ctx).Named("transform")
-	logger.Infow("Transforming manifest", "before", manifest.ResourceNames())
-	defer logger.Infow("Transforming manifest", "after", manifest.ResourceNames())
 	instance := comp.(*v1beta1.KnativeEventing)
 	extra := []mf.Transformer{
 		kec.DefaultBrokerConfigMapTransform(instance, logger),

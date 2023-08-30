@@ -38,7 +38,6 @@ var (
 // status accordingly.
 func Install(ctx context.Context, manifest *mf.Manifest, instance base.KComponent) error {
 	logger := logging.FromContext(ctx).Named("common.Install")
-	logger.Debug("Installing manifest", "manifest", manifest.ResourceNames())
 	status := instance.GetStatus()
 	// The Operator needs a higher level of permissions if it 'bind's non-existent roles.
 	// To avoid this, we strictly order the manifest application as (Cluster)Roles, then
@@ -54,8 +53,6 @@ func Install(ctx context.Context, manifest *mf.Manifest, instance base.KComponen
 		return fmt.Errorf("failed to apply (cluster)rolebindings: %w", err)
 	}
 	logger.Infow("Applied rbac manifest------------------------------------------------")
-	debugMani := manifest.Filter(mf.Not(mf.Any(role, rolebinding, webhook)))
-	logger.Infow("debug manifest", "file", debugMani.ResourceNames())
 	if err := manifest.Filter(mf.Not(mf.Any(role, rolebinding, webhook))).Apply(); err != nil {
 		logger.Errorw("Failed to apply non rbac manifest", "error", err)
 		status.MarkInstallFailed(err.Error())
