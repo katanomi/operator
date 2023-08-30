@@ -17,6 +17,7 @@ limitations under the License.
 package common
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"path"
@@ -29,6 +30,7 @@ import (
 	"golang.org/x/mod/semver"
 	"knative.dev/operator/pkg/apis/operator/base"
 	"knative.dev/operator/pkg/apis/operator/v1beta1"
+	"knative.dev/pkg/logging"
 )
 
 const (
@@ -43,22 +45,31 @@ const (
 )
 
 var cache = map[string]mf.Manifest{}
+var (
+	releaseLogger = logging.FromContext(context.TODO()).Named("releaseLogger")
+)
 
 // TargetVersion returns the version of the manifest to be installed
 // per the spec in the component. If spec.version is empty, the latest
 // version known to the operator is returned.
 func TargetVersion(instance base.KComponent) string {
+	logger := releaseLogger.Named("TargetVersion")
 	version := instance.GetSpec().GetVersion()
+	logger.Infow("instance spec version", "version", version)
 	if strings.EqualFold(version, LATEST_VERSION) {
+		logger.Infow("instance spec version is latest", "version", version)
 		return GetLatestRelease(instance, version)
 	}
 
 	if len(instance.GetSpec().GetManifests()) == 0 {
+		logger.Infow("instance spec manifests is empty", "version", version)
 		if version == "" {
+			logger.Infow("instance spec version is empty", "version", version)
 			return LatestRelease(instance)
 		}
-
+		logger.Infow("instance spec version is not empty", "version", version)
 		if SanitizeSemver(version) == semver.MajorMinor(SanitizeSemver(version)) {
+			logger.Infow("instance spec version is major.minor", "version", version)
 			return GetLatestRelease(instance, version)
 		}
 	}
@@ -412,21 +423,27 @@ func GetLatestIngressRelease(version string) string {
 // GetLatestRelease returns the latest release tag available under kodata directory for Knative component
 // based on spec.version.
 func GetLatestRelease(instance base.KComponent, version string) string {
+	logger := releaseLogger.Named("GetLatestRelease")
+	logger.Infow("GetLatestRelease", "instance", instance, "version", version)
 	// The versions are in a descending order, so the first one will be the latest version.
 	vers, err := allReleases(instance)
 	if err != nil {
 		panic(err)
 	}
+	logger.Infow("GetLatestRelease", "vers", vers)
 	return getLatestReleaseFromList(vers, version)
 }
 
 // getLatestReleaseFromList returns the latest release tag available under kodata directory for Knative component
 // based on spec.version.
 func getLatestReleaseFromList(vers []string, version string) string {
+	logger := releaseLogger.Named("getLatestReleaseFromList")
+	logger.Infow("getLatestReleaseFromList", "vers", vers, "version", version)
 	if version == "" {
 		return vers[0]
 	}
 
+	logger.Infow("getLatestReleaseFromList", "vers", vers, "version", version)
 	if strings.EqualFold(version, LATEST_VERSION) {
 		// If spec.version is set to latest, look up if the directory latest is available.
 		// If not, return the newest available version instead.
@@ -435,6 +452,7 @@ func getLatestReleaseFromList(vers []string, version string) string {
 				return val
 			}
 		}
+		logger.Infow("getLatestReleaseFromList, version equal latest version", "vers", vers, "version", version, "latest", LATEST_VERSION)
 		return vers[0]
 	}
 
@@ -443,8 +461,10 @@ func getLatestReleaseFromList(vers []string, version string) string {
 			semver.MajorMinor(SanitizeSemver(val)) == semver.MajorMinor(SanitizeSemver(version)) {
 			// If spec.version is set in the format of major.minor, we return the latest version matching
 			// spec.version.
+			logger.Infow("getLatestReleaseFromList, version equal major.minor", "vers", vers, "version", version, "val", val)
 			return val
 		}
 	}
+	logger.Infow("getLatestReleaseFromList, version not equal major.minor", "vers", vers, "version", version)
 	return version
 }
