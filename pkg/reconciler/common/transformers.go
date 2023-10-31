@@ -18,6 +18,8 @@ import (
 
 	mf "github.com/manifestival/manifestival"
 
+	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"knative.dev/operator/pkg/apis/operator/v1alpha1"
 	"knative.dev/pkg/logging"
 )
@@ -26,7 +28,7 @@ import (
 func transformers(ctx context.Context, obj v1alpha1.KComponent) []mf.Transformer {
 	logger := logging.FromContext(ctx)
 	return []mf.Transformer{
-		mf.InjectOwner(obj),
+		injectOwner(obj),
 		mf.InjectNamespace(obj.GetNamespace()),
 		JobTransform(obj),
 		HighAvailabilityTransform(obj, logger),
@@ -34,6 +36,15 @@ func transformers(ctx context.Context, obj v1alpha1.KComponent) []mf.Transformer
 		ConfigMapTransform(obj.GetSpec().GetConfig(), logger),
 		ResourceRequirementsTransform(obj, logger),
 		DeploymentsTransform(obj, logger),
+	}
+}
+
+func injectOwner(owner mf.Owner) mf.Transformer {
+	return func(u *unstructured.Unstructured) error {
+		if u.GetNamespace() != "" {
+			u.SetOwnerReferences([]v1.OwnerReference{*v1.NewControllerRef(owner, owner.GroupVersionKind())})
+		}
+		return nil
 	}
 }
 
