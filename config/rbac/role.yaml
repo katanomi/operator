@@ -170,6 +170,7 @@ rules:
   - apiextensions.k8s.io
   resources:
   - customresourcedefinitions
+  - customresourcedefinitions/status
   verbs:
   - '*'
 # Old resources that need cleaning up that are not in the knative-serving
@@ -391,6 +392,7 @@ rules:
       - apiextensions.k8s.io
     resources:
       - customresourcedefinitions
+      - customresourcedefinitions/status
     verbs:
       - '*'
   - apiGroups:
