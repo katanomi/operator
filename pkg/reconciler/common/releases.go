@@ -74,6 +74,8 @@ func TargetVersion(instance base.KComponent) string {
 		}
 	}
 
+	logger.Infow("Manifests length is not 0", "version", version)
+
 	return version
 }
 
