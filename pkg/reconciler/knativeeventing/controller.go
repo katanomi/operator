@@ -28,6 +28,7 @@ import (
 	knativeEventinginformer "knative.dev/operator/pkg/client/injection/informers/operator/v1beta1/knativeeventing"
 	knereconciler "knative.dev/operator/pkg/client/injection/reconciler/operator/v1beta1/knativeeventing"
 	"knative.dev/operator/pkg/reconciler/common"
+	eventingcommon "knative.dev/operator/pkg/reconciler/knativeeventing/common"
 	kubeclient "knative.dev/pkg/client/injection/kube/client"
 	deploymentinformer "knative.dev/pkg/client/injection/kube/informers/apps/v1/deployment"
 	"knative.dev/pkg/configmap"
@@ -78,6 +79,12 @@ func NewExtendedController(generator common.ExtensionGenerator) injection.Contro
 		if err != nil {
 			logger.Fatalw("Unable to migrate existing custom resources", zap.Error(err))
 		}
+
+		err = eventingcommon.MigrateEventingSpecVersion(ctx, operatorclient.Get(ctx))
+		if err != nil {
+			logger.Errorw("migrate knativeeventing spec.version error", "err", err)
+		}
+
 		return impl
 	}
 }
