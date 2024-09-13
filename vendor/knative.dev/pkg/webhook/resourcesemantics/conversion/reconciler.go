@@ -19,6 +19,7 @@ package conversion
 import (
 	"context"
 	"fmt"
+	"os"
 
 	"go.uber.org/zap"
 	apixv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1"
@@ -73,6 +74,10 @@ func (r *reconciler) Reconcile(ctx context.Context, key string) error {
 	if err != nil {
 		logger.Errorw("Error fetching secret", zap.Error(err))
 		return err
+	}
+
+	if os.Getenv("USE_OLM_TLS") != "" { // olm will do the crd update
+		return nil
 	}
 
 	cacert, ok := secret.Data[certresources.CACert]

@@ -18,6 +18,7 @@ package main
 
 import (
 	"context"
+	"os"
 
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"knative.dev/operator/pkg/apis/operator"
@@ -25,6 +26,7 @@ import (
 	operatorv1beta1 "knative.dev/operator/pkg/apis/operator/v1beta1"
 	"knative.dev/pkg/configmap"
 	"knative.dev/pkg/controller"
+	"knative.dev/pkg/injection"
 	"knative.dev/pkg/injection/sharedmain"
 	"knative.dev/pkg/signals"
 	"knative.dev/pkg/webhook"
@@ -40,10 +42,13 @@ func main() {
 		SecretName:  webhook.SecretNameFromEnv("operator-webhook-certs"),
 	})
 
-	sharedmain.WebhookMainWithContext(ctx, webhook.NameFromEnv(),
-		certificates.NewController,
-		newConversionController,
-	)
+	var controllers []injection.ControllerConstructor
+	if os.Getenv("USE_OLM_TLS") != "" {
+		controllers = append(controllers, certificates.NewController)
+	}
+	controllers = append(controllers, newConversionController)
+
+	sharedmain.WebhookMainWithContext(ctx, webhook.NameFromEnv(), controllers...)
 }
 
 func newConversionController(ctx context.Context, cmw configmap.Watcher) *controller.Impl {
